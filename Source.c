@@ -79,17 +79,16 @@ GA* inserirAresta(GA* lista, int verticed, int aresta) {
     novaAresta->aresta = aresta;
     novaAresta->proximo = lista; // A nova aresta aponta para o início da lista existente
 
-    return novaAresta; // Retorna o apontador para a nova lista de adjacência
+    return novaAresta; // Devolve o apontador para a nova lista de adjacência
 }
 
-//Função para criar as arestas consoante a decisão do utilizador
+// Função para criar as arestas consoante a decisão do utilizador
 void criarArestas(GR* grafos, int opcao) {
     GR* verticeAtual = grafos;
 
     // Percorre cada vértice na lista ligada
     while (verticeAtual != NULL) {
         GA* listaArestas = NULL; // Inicializa a lista de adjacências para o vértice atual
-        int numAresta = 1; // Inicializa o número da aresta
 
         // Determina os índices do vértice atual na matriz
         int linha = verticeAtual->vertice / 5;
@@ -100,47 +99,36 @@ void criarArestas(GR* grafos, int opcao) {
             // Adiciona a aresta superior esquerda
             if (linha > 0 && coluna > 0) {
                 int verticeDestino = (linha - 1) * 5 + coluna - 1;
-                listaArestas = inserirAresta(listaArestas, verticeDestino, numAresta++);
+                listaArestas = inserirAresta(listaArestas, verticeDestino, 1);
             }
             // Adiciona a aresta superior direita
             if (linha > 0 && coluna < 4) {
                 int verticeDestino = (linha - 1) * 5 + coluna + 1;
-                listaArestas = inserirAresta(listaArestas, verticeDestino, numAresta++);
+                listaArestas = inserirAresta(listaArestas, verticeDestino, 2);
             }
             // Adiciona a aresta inferior esquerda
             if (linha < 4 && coluna > 0) {
                 int verticeDestino = (linha + 1) * 5 + coluna - 1;
-                listaArestas = inserirAresta(listaArestas, verticeDestino, numAresta++);
+                listaArestas = inserirAresta(listaArestas, verticeDestino, 3);
             }
             // Adiciona a aresta inferior direita
             if (linha < 4 && coluna < 4) {
                 int verticeDestino = (linha + 1) * 5 + coluna + 1;
-                listaArestas = inserirAresta(listaArestas, verticeDestino, numAresta++);
+                listaArestas = inserirAresta(listaArestas, verticeDestino, 4);
             }
         }
-        else if (opcao == 2) { // Ligações verticais
-            // Adiciona a aresta acima
-            if (linha > 0) {
-                int verticeDestino = (linha - 1) * 5 + coluna;
-                listaArestas = inserirAresta(listaArestas, verticeDestino, numAresta++);
-            }
-            // Adiciona a aresta abaixo
-            if (linha < 4) {
-                int verticeDestino = (linha + 1) * 5 + coluna;
-                listaArestas = inserirAresta(listaArestas, verticeDestino, numAresta++);
-            }
-        }
-        else if (opcao == 3) { // Ligações horizontais
-            // Adiciona a aresta à esquerda
-            if (coluna > 0) {
-                int verticeDestino = linha * 5 + coluna - 1;
-                listaArestas = inserirAresta(listaArestas, verticeDestino, numAresta++);
-            }
-            // Adiciona a aresta à direita
-            if (coluna < 4) {
-                int verticeDestino = linha * 5 + coluna + 1;
-                listaArestas = inserirAresta(listaArestas, verticeDestino, numAresta++);
-            }
+
+        // Adiciona as arestas restantes para os vértices internos
+        if (linha > 0 && linha < 4 && coluna > 0 && coluna < 4) {
+            int verticeAcima = (linha - 1) * 5 + coluna;
+            int verticeAbaixo = (linha + 1) * 5 + coluna;
+            int verticeEsquerda = linha * 5 + coluna - 1;
+            int verticeDireita = linha * 5 + coluna + 1;
+
+            listaArestas = inserirAresta(listaArestas, verticeAcima, 5);
+            listaArestas = inserirAresta(listaArestas, verticeAbaixo, 6);
+            listaArestas = inserirAresta(listaArestas, verticeEsquerda, 7);
+            listaArestas = inserirAresta(listaArestas, verticeDireita, 8);
         }
 
         // Associa a lista de adjacências ao vértice atual
@@ -152,13 +140,31 @@ void criarArestas(GR* grafos, int opcao) {
 }
 
 
+// Função para imprimir apenas as arestas de um vértice
+void imprimirArestas(GA* arestas) {
+    GA* arestaAtual = arestas;
+
+    if (arestaAtual == NULL) {
+        printf("Sem arestas\n");
+    }
+    else {
+        printf("Arestas: ");
+        while (arestaAtual != NULL) {
+            printf("(%d, %d) ", arestaAtual->aresta, arestaAtual->verticed);
+            arestaAtual = arestaAtual->proximo;
+        }
+        printf("\n");
+    }
+}
+
+
 // Função para imprimir o grafo com as arestas e números associados
 void imprimirGrafo(GR* grafos) {
     GR* verticeAtual = grafos;
 
     // Percorre cada vértice na lista ligada
     while (verticeAtual != NULL) {
-        printf("Vertice %d (Dado: %d):\n", verticeAtual->vertice, verticeAtual->dado);
+        printf("Vertice %02d (Dado: %d):\n", verticeAtual->vertice, verticeAtual->dado);
 
         // Imprime as arestas associadas ao vértice, se houver
         GA* arestaAtual = verticeAtual->arestas;
@@ -168,7 +174,7 @@ void imprimirGrafo(GR* grafos) {
         else {
             printf("  Arestas: ");
             while (arestaAtual != NULL) {
-                printf("(%d, %d) ", arestaAtual->aresta, arestaAtual->verticed);
+                printf("(%02d, %02d) ", arestaAtual->verticed / 5, arestaAtual->verticed % 5);
                 arestaAtual = arestaAtual->proximo;
             }
             printf("\n");
@@ -211,7 +217,7 @@ int menu() {
 int main() {
     GR* grafos = NULL;
 
-    // Ler os dados da matriz do arquivo txt
+    // Ler os dados da matriz do ficheiro txt
     loadGraphFromFile(&grafos, "matriz.txt");
 
     int opcao;
@@ -250,6 +256,8 @@ int main() {
 
 
     printGraph(grafos);
+
+    
 
   
     return 0;
