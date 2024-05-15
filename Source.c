@@ -97,7 +97,8 @@ GR* encontrarVertice(GR* grafos, int indice) {
     return NULL;
 }
 
-void inserirAresta(GA** listaArestas, int verticeDestino, int dadoVerticeDestino, int numeroAresta) {
+// Função para inserir uma aresta no início da lista de adjacência de um vértice
+void inserirAresta(GA** listaArestas, int VerticeDestino, int aresta, int VerticeDestinoDado) {
     GA* novaAresta = (GA*)malloc(sizeof(GA));
     if (novaAresta == NULL) {
         printf("Erro: Não foi possível alocar memória para a nova aresta.\n");
@@ -105,12 +106,13 @@ void inserirAresta(GA** listaArestas, int verticeDestino, int dadoVerticeDestino
     }
 
     // Preencher os dados da nova aresta
-    novaAresta->verticed = verticeDestino;
-    novaAresta->dado_verticed = dadoVerticeDestino;
-    novaAresta->aresta = numeroAresta;
+    novaAresta->aresta = aresta;
+    novaAresta->verticed = VerticeDestino;
+    novaAresta->dado_verticed = VerticeDestinoDado;
     novaAresta->proximo = *listaArestas; // A nova aresta aponta para o início da lista existente
     *listaArestas = novaAresta; // Atualiza o ponteiro da lista para apontar para a nova aresta
 }
+
 
 
 // Função para calcular o número total de linhas e colunas com base no maior número de vértice
@@ -140,17 +142,28 @@ void criarArestas(GR* grafos, int opcao) {
     int numLinhas = dimensoes.numLinhas;
     int numColunas = dimensoes.numColunas;
 
+    // Verificar se a matriz é válida
+    if (numLinhas == 0 || numColunas == 0) {
+        printf("Erro: Dimensões da matriz inválidas.\n");
+        return;
+    }
+
+    GR* verticeAtual = grafos;
+
     // Percorrer todas as linhas e colunas da matriz
     for (int linha = 1; linha <= numLinhas; linha++) {
         for (int coluna = 1; coluna <= numColunas; coluna++) {
             // Determinar o número do vértice atual
-            int verticeAtualNum = (linha * 10) + coluna;
+            int verticeAtualNum = linha * 10 + coluna;
 
             // Encontrar o vértice atual na lista
             GR* verticeAtualPtr = encontrarVertice(grafos, verticeAtualNum);
-            if (verticeAtualPtr == NULL) continue;  // Se o vértice atual não existir, pula para o próximo
+            if (verticeAtualPtr == NULL) {
+                printf("Erro: Vértice %d não encontrado.\n", verticeAtualNum);
+                continue;
+            }
 
-            int numeroAresta = 1; // Inicializar o número da aresta para cada vértice
+            int arestaCount = 1;
 
             // Verificar se as arestas diagonais podem ser adicionadas
             if (opcao == 1) { // Ligações diagonais
@@ -159,7 +172,7 @@ void criarArestas(GR* grafos, int opcao) {
                     int verticeDestino = ((linha - 1) * 10) + (coluna - 1);
                     GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
                     if (verticeDestinoPtr != NULL) {
-                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestino, verticeDestinoPtr->dado, numeroAresta++);
+                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestinoPtr->vertice, arestaCount++, verticeDestinoPtr->dado);
                     }
                 }
                 // Adicionar a aresta superior direita
@@ -167,7 +180,7 @@ void criarArestas(GR* grafos, int opcao) {
                     int verticeDestino = ((linha - 1) * 10) + (coluna + 1);
                     GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
                     if (verticeDestinoPtr != NULL) {
-                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestino, verticeDestinoPtr->dado, numeroAresta++);
+                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestinoPtr->vertice, arestaCount++, verticeDestinoPtr->dado);
                     }
                 }
                 // Adicionar a aresta inferior esquerda
@@ -175,7 +188,7 @@ void criarArestas(GR* grafos, int opcao) {
                     int verticeDestino = ((linha + 1) * 10) + (coluna - 1);
                     GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
                     if (verticeDestinoPtr != NULL) {
-                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestino, verticeDestinoPtr->dado, numeroAresta++);
+                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestinoPtr->vertice, arestaCount++, verticeDestinoPtr->dado);
                     }
                 }
                 // Adicionar a aresta inferior direita
@@ -183,7 +196,43 @@ void criarArestas(GR* grafos, int opcao) {
                     int verticeDestino = ((linha + 1) * 10) + (coluna + 1);
                     GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
                     if (verticeDestinoPtr != NULL) {
-                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestino, verticeDestinoPtr->dado, numeroAresta++);
+                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestinoPtr->vertice, arestaCount++, verticeDestinoPtr->dado);
+                    }
+                }
+            }
+            else if (opcao == 2) { // Ligações verticais
+                // Adicionar a aresta superior
+                if (linha > 1) {
+                    int verticeDestino = ((linha - 1) * 10) + coluna;
+                    GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
+                    if (verticeDestinoPtr != NULL) {
+                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestinoPtr->vertice, arestaCount++, verticeDestinoPtr->dado);
+                    }
+                }
+                // Adicionar a aresta inferior
+                if (linha < numLinhas) {
+                    int verticeDestino = ((linha + 1) * 10) + coluna;
+                    GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
+                    if (verticeDestinoPtr != NULL) {
+                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestinoPtr->vertice, arestaCount++, verticeDestinoPtr->dado);
+                    }
+                }
+            }
+            else if (opcao == 3) { // Ligações horizontais
+                // Adicionar a aresta esquerda
+                if (coluna > 1) {
+                    int verticeDestino = (linha * 10) + (coluna - 1);
+                    GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
+                    if (verticeDestinoPtr != NULL) {
+                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestinoPtr->vertice, arestaCount++, verticeDestinoPtr->dado);
+                    }
+                }
+                // Adicionar a aresta direita
+                if (coluna < numColunas) {
+                    int verticeDestino = (linha * 10) + (coluna + 1);
+                    GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
+                    if (verticeDestinoPtr != NULL) {
+                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestinoPtr->vertice, arestaCount++, verticeDestinoPtr->dado);
                     }
                 }
             }
@@ -208,8 +257,86 @@ void imprimirGrafo(GR* grafos) {
     }
 }
 
+// Função para remover uma aresta específica de um vértice
+void removerAresta(GA** listaArestas, int verticeDestino) {
+    GA* atual = *listaArestas;
+    GA* anterior = NULL;
 
-void printGraph(GR* grafos) {
+    while (atual != NULL) {
+        if (atual->verticed == verticeDestino) {
+            if (anterior == NULL) {
+                *listaArestas = atual->proximo;
+            }
+            else {
+                anterior->proximo = atual->proximo;
+            }
+            free(atual);
+            printf("Aresta para o vértice %d removida com sucesso.\n", verticeDestino);
+            return;
+        }
+        anterior = atual;
+        atual = atual->proximo;
+    }
+    printf("Aresta para o vértice %d não encontrada.\n", verticeDestino);
+}
+
+// Função para remover todas as arestas de um vértice
+void removerTodasArestas(GA** listaArestas) {
+    GA* atual = *listaArestas;
+    while (atual != NULL) {
+        GA* temp = atual;
+        atual = atual->proximo;
+        free(temp);
+    }
+    *listaArestas = NULL;
+    printf("Todas as arestas foram removidas.\n");
+}
+
+// Função para remover todas as arestas de todos os vértices do grafo
+void removerTodasArestasGrafo(GR* grafos) {
+    GR* verticeAtual = grafos;
+    while (verticeAtual != NULL) {
+        removerTodasArestas(&(verticeAtual->arestas));
+        verticeAtual = verticeAtual->proximo;
+    }
+    printf("Todas as arestas do grafo foram removidas.\n");
+}
+
+// Função para remover um vértice e suas arestas
+void removerVertice(GR* grafos, int vertice) {
+    // Verificar se a lista de vértices está vazia
+    if (grafos == NULL) {
+        printf("Erro: A lista de vértices está vazia.\n");
+        return;
+    }
+
+    GR* anterior = NULL;
+    GR* atual = grafos;
+
+    // Procurar o vértice na lista
+    while (atual != NULL) {
+        if (atual->vertice == vertice) {
+            // Se o vértice a ser removido for o primeiro da lista
+            if (anterior == NULL) {
+                grafos = atual->proximo;
+            }
+            else {
+                anterior->proximo = atual->proximo;
+            }
+            free(atual);
+            return;
+        }
+        anterior = atual;
+        atual = atual->proximo;
+    }
+
+    // Se o vértice não for encontrado, exibir uma mensagem de erro
+    printf("Erro: O vértice %d não foi encontrado.\n", vertice);
+}
+
+
+
+void imprimirVertices(GR* grafos) {
     GR* atual = grafos;
 
     printf("Lista de vertices:\n");
@@ -222,6 +349,83 @@ void printGraph(GR* grafos) {
     }
 }
 
+
+// Função para exibir o menu de remoção e ler a escolha do usuário
+int menuRemover() {
+    int escolha;
+
+    printf("\n------ Menu Remover ------\n");
+    printf("0 - Sair\n");
+    printf("1 - Remover todas as arestas\n");
+    printf("2 - Remover arestas de um vertice\n");
+    printf("3 - Remover uma aresta de um vertice\n");
+    printf("4 - Remover um vertice e suas arestas\n");
+    printf("Escolha uma opcao: ");
+    scanf("%d", &escolha);
+
+    return escolha;
+}
+
+
+// Função para remover arestas baseada na escolha do usuário
+void executarRemover(GR* grafos) {
+    int escolhaRemover;
+    do {
+        escolhaRemover = menuRemover();
+
+        switch (escolhaRemover) {
+        case 0:
+            printf("Saindo do menu remover...\n");
+            break;
+        case 1:
+            printf("Removendo todas as arestas do grafo...\n");
+            removerTodasArestasGrafo(grafos);
+            break;
+        case 2:
+        {
+            int vertice;
+            printf("Digite o vertice para remover todas as suas arestas: ");
+            scanf("%d", &vertice);
+            GR* verticePtr = encontrarVertice(grafos, vertice);
+            if (verticePtr != NULL) {
+                removerTodasArestas(&(verticePtr->arestas));
+            }
+            else {
+                printf("Vertice %d não encontrado.\n", vertice);
+            }
+            break;
+        }
+        case 3:
+        {
+            int vertice, verticeDestino;
+            printf("Digite o vertice para remover uma aresta: ");
+            scanf("%d", &vertice);
+            printf("Digite o vertice de destino da aresta: ");
+            scanf("%d", &verticeDestino);
+            GR* verticePtr = encontrarVertice(grafos, vertice);
+            if (verticePtr != NULL) {
+                removerAresta(&(verticePtr->arestas), verticeDestino);
+            }
+            else {
+                printf("Vertice %d não encontrado.\n", vertice);
+            }
+            break;
+        }
+        case 4: // Remover um vértice e suas arestas
+            int vertice;
+            printf("Digite o numero do vertice para remover: ");
+            scanf("%d", &vertice);
+            removerVertice(grafos, vertice);
+            break;
+        default:
+            printf("Opcao invalida. Tente novamente.\n");
+            break;
+        }
+    } while (escolhaRemover != 0);
+}
+
+
+
 // Função para exibir o menu e ler a escolha do usuário
 int menu() {
     int escolha;
@@ -230,6 +434,7 @@ int menu() {
     printf("0 - Sair\n");
     printf("1 - Criar ligacoes de vertices\n");
     printf("2 - Mostrar vertices e ligacoes\n");
+    printf("3 - Remover vertices ou arestas\n");
     printf("Escolha uma opcao: ");
     scanf("%d", &escolha);
 
@@ -242,7 +447,7 @@ int main() {
     // Ler os dados da matriz do ficheiro txt
     lerFicheiro(&grafos, "matriz.txt");
 
-    printGraph(grafos);
+    imprimirVertices(grafos);
 
     int opcao;
 
@@ -268,9 +473,13 @@ int main() {
             criarArestas(grafos, escolha);
             break;
         case 2:
-            printf("Opcao 1 selecionada: Mostrar vertices e ligacoes\n");
+            printf("Opcao 2 selecionada: Mostrar vertices e ligacoes\n");
             printf("Lista de vertices e respetivas arestas:\n");
             imprimirGrafo(grafos);
+            break;
+        case 3:
+            printf("Opcao 3 selecionada: Remover vertices ou arestas\n");
+            executarRemover(grafos);
             break;
         default:
             printf("Opcao invalida. Tente novamente.\n");
@@ -280,3 +489,4 @@ int main() {
 
     return 0;
 }
+
