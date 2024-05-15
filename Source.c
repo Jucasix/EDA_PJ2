@@ -17,6 +17,12 @@ typedef struct ga {
     struct ga* proximo;
 } GA;
 
+// Estrutura para armazenar o número total de linhas e colunas
+typedef struct {
+    int numLinhas;
+    int numColunas;
+} DimensoesMatriz;
+
 // Função para criar um novo vértice com base no número e adicionar à lista de vértices
 GR* criarVertice(int numero, int dado) {
     // Criar um novo vértice na lista ligada GR
@@ -74,7 +80,6 @@ void lerFicheiro(GR** grafos, const char* filename) {
     fclose(file);
 }
 
-
 // Função para encontrar um vértice na lista de vértices com base no índice
 GR* encontrarVertice(GR* grafos, int indice) {
     GR* verticeAtual = grafos;
@@ -92,97 +97,97 @@ GR* encontrarVertice(GR* grafos, int indice) {
     return NULL;
 }
 
-// Função para inserir uma aresta no início da lista de adjacência de um vértice
-GA* inserirAresta(GA* lista, int verticed, int aresta, int dado_verticed) {
+void inserirAresta(GA** listaArestas, int verticeDestino, int dadoVerticeDestino, int numeroAresta) {
     GA* novaAresta = (GA*)malloc(sizeof(GA));
     if (novaAresta == NULL) {
         printf("Erro: Não foi possível alocar memória para a nova aresta.\n");
-        return lista;
+        return;
     }
 
     // Preencher os dados da nova aresta
-    novaAresta->verticed = verticed;
-    novaAresta->aresta = aresta;
-    novaAresta->dado_verticed = dado_verticed; // Armazenar o dado do vértice de destino
-    novaAresta->proximo = lista; // A nova aresta aponta para o início da lista existente
-
-    // Print dos dados da nova aresta
-    printf("Nova aresta criada: verticed = %d, dado verticed = %d, aresta = %d\n", novaAresta->verticed, novaAresta->dado_verticed, novaAresta->aresta);
-
-    return novaAresta; // Retorna o apontador para a nova lista de adjacência
+    novaAresta->verticed = verticeDestino;
+    novaAresta->dado_verticed = dadoVerticeDestino;
+    novaAresta->aresta = numeroAresta;
+    novaAresta->proximo = *listaArestas; // A nova aresta aponta para o início da lista existente
+    *listaArestas = novaAresta; // Atualiza o ponteiro da lista para apontar para a nova aresta
 }
 
-// Função para criar as arestas consoante a decisão do utilizador
-void criarArestas(GR* grafos, int opcao) {
+
+// Função para calcular o número total de linhas e colunas com base no maior número de vértice
+DimensoesMatriz calcularLinhasColunas(GR* grafos) {
+    DimensoesMatriz dimensoes = { 0, 0 };
+    int maiorVertice = 0;
     GR* verticeAtual = grafos;
 
-    printf("Vertice atual: %d\n", verticeAtual->vertice);
-    // Percorre cada vértice na lista ligada
+    // Encontrar o maior número de vértice
     while (verticeAtual != NULL) {
-        printf("Vertice atual: %d\n", verticeAtual->vertice);
-        GA* listaArestas = NULL; // Inicializa a lista de adjacências para o vértice atual
-        int numAresta = 1; // Inicializa o número da aresta
+        if (verticeAtual->vertice > maiorVertice) {
+            maiorVertice = verticeAtual->vertice;
+        }
+        verticeAtual = verticeAtual->proximo;
+    }
 
-        // Determina os índices do vértice atual na matriz
-        int linha = (verticeAtual->vertice - 1) / 10;
-        int coluna = (verticeAtual->vertice) % 10;
+    // Calcular o número total de linhas e colunas
+    dimensoes.numLinhas = maiorVertice / 10;
+    dimensoes.numColunas = maiorVertice % 10;
 
-        // Verifica a opção selecionada pelo usuário e adiciona as arestas apropriadas
-        if (opcao == 1) { // Ligações diagonais
-            // Adiciona a aresta superior esquerda
-            if (linha > 1 && coluna > 1) {
-                int verticeDestino = ((linha - 1) * 10) + coluna - 1;
-                GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
-                listaArestas = inserirAresta(listaArestas, verticeDestino, numAresta++, verticeDestinoPtr->dado);
-            }
-            // Adiciona a aresta superior direita
-            if (linha > 1 && coluna < 5) {
-                int verticeDestino = ((linha - 1) * 10) + coluna + 1;
-                GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
-                listaArestas = inserirAresta(listaArestas, verticeDestino, numAresta++, verticeDestinoPtr->dado);
-            }
-            // Adiciona a aresta inferior esquerda
-            if (linha < 5 && coluna > 1) {
-                int verticeDestino = ((linha + 1) * 10) + coluna - 1;
-                GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
-                listaArestas = inserirAresta(listaArestas, verticeDestino, numAresta++, verticeDestinoPtr->dado);
-            }
-            // Adiciona a aresta inferior direita
-            if (linha < 5 && coluna < 5) {
-                int verticeDestino = ((linha + 1) * 10) + coluna + 1;
-                GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
-                listaArestas = inserirAresta(listaArestas, verticeDestino, numAresta++, verticeDestinoPtr->dado);
-            }
+    return dimensoes;
+}
 
-            /*/ Ajusta para vértices de canto terem apenas uma aresta
-            if ((linha == 1 && coluna == 1) ||
-                (linha == 1 && coluna == 5) ||
-                (linha == 5 && coluna == 1) ||
-                (linha == 5 && coluna == 5)) {
-                while (listaArestas->proximo != NULL) {
-                    GA* temp = listaArestas->proximo;
-                    free(listaArestas);
-                    listaArestas = temp;
-                }
-            }
-            // Ajusta para vértices das bordas terem apenas duas arestas
-            else if (linha == 1 || linha == 5 || coluna == 1 || coluna == 5) {
-                if (listaArestas != NULL && listaArestas->proximo != NULL) {
-                    while (listaArestas->proximo->proximo != NULL) {
-                        GA* temp = listaArestas->proximo;
-                        free(temp->proximo);
-                        listaArestas->proximo = NULL;
+// Função para criar as arestas com base no tamanho da matriz
+void criarArestas(GR* grafos, int opcao) {
+    DimensoesMatriz dimensoes = calcularLinhasColunas(grafos);
+    int numLinhas = dimensoes.numLinhas;
+    int numColunas = dimensoes.numColunas;
+
+    // Percorrer todas as linhas e colunas da matriz
+    for (int linha = 1; linha <= numLinhas; linha++) {
+        for (int coluna = 1; coluna <= numColunas; coluna++) {
+            // Determinar o número do vértice atual
+            int verticeAtualNum = (linha * 10) + coluna;
+
+            // Encontrar o vértice atual na lista
+            GR* verticeAtualPtr = encontrarVertice(grafos, verticeAtualNum);
+            if (verticeAtualPtr == NULL) continue;  // Se o vértice atual não existir, pula para o próximo
+
+            int numeroAresta = 1; // Inicializar o número da aresta para cada vértice
+
+            // Verificar se as arestas diagonais podem ser adicionadas
+            if (opcao == 1) { // Ligações diagonais
+                // Adicionar a aresta superior esquerda
+                if (linha > 1 && coluna > 1) {
+                    int verticeDestino = ((linha - 1) * 10) + (coluna - 1);
+                    GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
+                    if (verticeDestinoPtr != NULL) {
+                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestino, verticeDestinoPtr->dado, numeroAresta++);
                     }
                 }
-            }*/
+                // Adicionar a aresta superior direita
+                if (linha > 1 && coluna < numColunas) {
+                    int verticeDestino = ((linha - 1) * 10) + (coluna + 1);
+                    GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
+                    if (verticeDestinoPtr != NULL) {
+                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestino, verticeDestinoPtr->dado, numeroAresta++);
+                    }
+                }
+                // Adicionar a aresta inferior esquerda
+                if (linha < numLinhas && coluna > 1) {
+                    int verticeDestino = ((linha + 1) * 10) + (coluna - 1);
+                    GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
+                    if (verticeDestinoPtr != NULL) {
+                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestino, verticeDestinoPtr->dado, numeroAresta++);
+                    }
+                }
+                // Adicionar a aresta inferior direita
+                if (linha < numLinhas && coluna < numColunas) {
+                    int verticeDestino = ((linha + 1) * 10) + (coluna + 1);
+                    GR* verticeDestinoPtr = encontrarVertice(grafos, verticeDestino);
+                    if (verticeDestinoPtr != NULL) {
+                        inserirAresta(&(verticeAtualPtr->arestas), verticeDestino, verticeDestinoPtr->dado, numeroAresta++);
+                    }
+                }
+            }
         }
-
-        //printf("Vertice atual: %d\n", verticeAtual->vertice);
-        // Associa a lista de adjacências ao vértice atual
-        verticeAtual->arestas = listaArestas;
-
-        // Move para o próximo vértice na lista
-        verticeAtual = verticeAtual->proximo;
     }
 }
 
@@ -190,30 +195,18 @@ void criarArestas(GR* grafos, int opcao) {
 // Função para imprimir o grafo com as arestas e números associados
 void imprimirGrafo(GR* grafos) {
     GR* verticeAtual = grafos;
-
-    // Percorre cada vértice na lista ligada
     while (verticeAtual != NULL) {
-        printf("Vertice %02d (Dado: %d):\n", verticeAtual->vertice, verticeAtual->dado);
-
-        // Imprime as arestas associadas ao vértice, se houver
+        printf("Vertice: %d (D: %d):\n", verticeAtual->vertice, verticeAtual->dado);
         GA* arestaAtual = verticeAtual->arestas;
-        if (arestaAtual == NULL) {
-            printf("  Sem arestas\n");
+        printf("  Arestas:");
+        while (arestaAtual != NULL) {
+            printf(" (A-> %d, V-> %d, DV-> %d)", arestaAtual->aresta, arestaAtual->verticed, arestaAtual->dado_verticed);
+            arestaAtual = arestaAtual->proximo;
         }
-        else {
-            printf("  Arestas: ");
-            while (arestaAtual != NULL) {
-                printf("(%02d, verticed: %d) ", arestaAtual->verticed / 10, arestaAtual->dado_verticed);
-                arestaAtual = arestaAtual->proximo;
-            }
-            printf("\n");
-        }
-
-        // Move para o próximo vértice na lista
+        printf("\n");
         verticeAtual = verticeAtual->proximo;
     }
 }
-
 
 
 void printGraph(GR* grafos) {
@@ -222,7 +215,7 @@ void printGraph(GR* grafos) {
     printf("Lista de vertices:\n");
     // Percorre a lista de vértices
     while (atual != NULL) {
-        printf("Vertice: %02d, Dado: %d\n", atual->vertice, atual->dado);
+        printf("V: %02d, D: %d\n", atual->vertice, atual->dado);
 
         // Move para o próximo vértice na lista
         atual = atual->proximo;
@@ -287,6 +280,3 @@ int main() {
 
     return 0;
 }
-
-
-
