@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 typedef struct gr {
     int vertice;
@@ -22,6 +23,8 @@ typedef struct {
     int numLinhas;
     int numColunas;
 } DimensoesMatriz;
+
+int escolha_tipo_ligacao = 0;
 
 // Função para criar um novo vértice com base no número e adicionar à lista de vértices
 GR* criarVertice(int numero, int dado) {
@@ -372,6 +375,7 @@ void executarRemover(GR* grafos) {
     int escolhaRemover;
     do {
         escolhaRemover = menuRemover();
+        int vertice, verticeDestino;
 
         switch (escolhaRemover) {
         case 0:
@@ -383,7 +387,6 @@ void executarRemover(GR* grafos) {
             break;
         case 2:
         {
-            int vertice;
             printf("Digite o vertice para remover todas as suas arestas: ");
             scanf("%d", &vertice);
             GR* verticePtr = encontrarVertice(grafos, vertice);
@@ -397,7 +400,6 @@ void executarRemover(GR* grafos) {
         }
         case 3:
         {
-            int vertice, verticeDestino;
             printf("Digite o vertice para remover uma aresta: ");
             scanf("%d", &vertice);
             printf("Digite o vertice de destino da aresta: ");
@@ -412,7 +414,6 @@ void executarRemover(GR* grafos) {
             break;
         }
         case 4: // Remover um vértice e suas arestas
-            int vertice;
             printf("Digite o numero do vertice para remover: ");
             scanf("%d", &vertice);
             removerVertice(grafos, vertice);
@@ -425,6 +426,99 @@ void executarRemover(GR* grafos) {
 }
 
 
+// Função para verificar se a ligação entre dois vértices é diagonal
+bool ligacaoDiagonal(GR* origem, GA* aresta) {
+    // Verifica se a diferença entre os vértices é igual a 11 ou 9, indicando uma ligação diagonal
+    return (aresta->verticed - origem->vertice) == 11 || (aresta->verticed - origem->vertice) == 9;
+}
+
+// Função para verificar se a ligação entre dois vértices é vertical
+bool ligacaoVertical(GR* origem, GA* aresta) {
+    // Verifica se a diferença entre os vértices é igual a 10, indicando uma ligação vertical
+    return (aresta->verticed - origem->vertice) == 10;
+}
+
+// Função para verificar se a ligação entre dois vértices é horizontal
+bool ligacaoHorizontal(GR* origem, GA* aresta) {
+    // Verifica se a diferença entre os vértices é igual a 1, indicando uma ligação horizontal
+    return (aresta->verticed - origem->vertice) == 1;
+}
+
+// Função para calcular o somatório máximo possível
+void calcularSomatorioMaximo(GR* verticeAtual, int somaAtual, int* somaMaximo, int* caminhoMaximo, bool* visitado, int* caminhoAtual) {
+    if (verticeAtual == NULL) {
+        return;
+    }
+
+    // Adiciona o dado do vértice atual ao somatório atual
+    somaAtual += verticeAtual->dado;
+
+    // Marca o vértice atual como visitado
+    visitado[verticeAtual->vertice] = true;
+
+    // Atualiza o caminho atual
+    caminhoAtual[verticeAtual->vertice] = verticeAtual->dado;
+
+    // Se a soma atual for maior que a soma máxima, atualiza a soma máxima e o caminho máximo
+    if (somaAtual > *somaMaximo) {
+        *somaMaximo = somaAtual;
+        memcpy(caminhoMaximo, caminhoAtual, sizeof(int) * (verticeAtual->vertice + 1));
+    }
+
+    // Itera sobre as arestas do vértice atual
+    GA* arestaAtual = verticeAtual->arestas;
+    while (arestaAtual != NULL) {
+        // Se o vértice de destino ainda não foi visitado, chama recursivamente a função DFS
+        if (!visitado[arestaAtual->verticed]) {
+            calcularSomatorioMaximo(encontrarVertice(verticeAtual, arestaAtual->verticed), somaAtual, somaMaximo, caminhoMaximo, visitado, caminhoAtual);
+        }
+        arestaAtual = arestaAtual->proximo;
+    }
+
+    // Retrocede o caminho atual, atualiza a soma atual e desmarca o vértice atual como não visitado
+    somaAtual -= verticeAtual->dado;
+    caminhoAtual[verticeAtual->vertice] = 0;
+    visitado[verticeAtual->vertice] = false;
+}
+
+// Função para iniciar o cálculo do somatório máximo possível
+void iniciarCalculoSomatorioMaximo(GR* grafos, int tipoLigacao) {
+    if (grafos == NULL) {
+        printf("Erro: O grafo está vazio.\n");
+        return;
+    }
+    if (tipoLigacao == 0 || tipoLigacao == NULL) {
+        printf("Erro: Tipo de ligacao indefinido ou invalido.");
+        return;
+    }
+
+    int somaMaximo = 0; // Inicializa a soma máxima como 0
+    int caminhoMaximo[1000] = { 0 }; // Define um array para armazenar o caminho máximo e inicializa com 0s
+    int caminhoAtual[1000] = { 0 }; // Define um array para armazenar o caminho atual e inicializa com 0s
+    bool visitado[1000] = { false }; // Define um array para controlar os vértices visitados e inicializa com falsos
+
+    // Inicia o cálculo do somatório máximo a partir de cada vértice do grafo
+    GR* verticeAtual = grafos;
+    while (verticeAtual != NULL) {
+        calcularSomatorioMaximo(verticeAtual, 0, &somaMaximo, caminhoMaximo, visitado, caminhoAtual);
+        verticeAtual = verticeAtual->proximo;
+    }
+
+    // Imprime o somatório máximo e o caminho máximo
+    printf("Somatorio Maximo: %d\n", somaMaximo);
+    printf("Caminho Maximo: ");
+    for (int i = 0; i < 1000; i++) {
+        if (caminhoMaximo[i] != 0) {
+            printf("%d ", caminhoMaximo[i]);
+        }
+    }
+    printf("\n");
+}
+
+
+
+
+
 
 // Função para exibir o menu e ler a escolha do usuário
 int menu() {
@@ -435,6 +529,7 @@ int menu() {
     printf("1 - Criar ligacoes de vertices\n");
     printf("2 - Mostrar vertices e ligacoes\n");
     printf("3 - Remover vertices ou arestas\n");
+    printf("4 - Mostrar somatorio maximo\n");
     printf("Escolha uma opcao: ");
     scanf("%d", &escolha);
 
@@ -469,6 +564,8 @@ int main() {
             printf("Digite o numero da opcao desejada: ");
             scanf("%d", &escolha);
 
+            escolha_tipo_ligacao = escolha;
+
             // Aqui você pode chamar a função para criar ligações de vértices
             criarArestas(grafos, escolha);
             break;
@@ -480,6 +577,10 @@ int main() {
         case 3:
             printf("Opcao 3 selecionada: Remover vertices ou arestas\n");
             executarRemover(grafos);
+            break;
+        case 4:
+            printf("Opcao 4 selecionada: Mostrar somatorio maximo\n");
+            iniciarCalculoSomatorioMaximo(grafos, escolha_tipo_ligacao);
             break;
         default:
             printf("Opcao invalida. Tente novamente.\n");

@@ -1,2 +1,5 @@
 ﻿  Source.c
-  PROJ_2_EDA.vcxproj -> C:\Users\utilizador\OneDrive - Instituto Politécnico do Cávado e do Ave\01_Disciplinas\EDA\VS\EDA_P2\EDA_PJ2\x64\Debug\PROJ_2_EDA.exe
+D:\EDJD\EDA\EDA_PJ2\Source.c(490,41): warning C4047: '==': 'int' differs in levels of indirection from 'void *'
+  PROJ_2_EDA.vcxproj -> D:\EDJD\EDA\EDA_PJ2\x64\Debug\PROJ_2_EDA.exe
+  'pwsh.exe' is not recognized as an internal or external command,
+  operable program or batch file.
