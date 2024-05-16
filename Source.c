@@ -373,6 +373,8 @@ void executarRemover(GR* grafos) {
     do {
         escolhaRemover = menuRemover();
 
+        int vertice, verticeDestino;
+
         switch (escolhaRemover) {
         case 0:
             printf("Saindo do menu remover...\n");
@@ -383,7 +385,6 @@ void executarRemover(GR* grafos) {
             break;
         case 2:
         {
-            int vertice;
             printf("Digite o vertice para remover todas as suas arestas: ");
             scanf("%d", &vertice);
             GR* verticePtr = encontrarVertice(grafos, vertice);
@@ -397,7 +398,6 @@ void executarRemover(GR* grafos) {
         }
         case 3:
         {
-            int vertice, verticeDestino;
             printf("Digite o vertice para remover uma aresta: ");
             scanf("%d", &vertice);
             printf("Digite o vertice de destino da aresta: ");
@@ -412,7 +412,6 @@ void executarRemover(GR* grafos) {
             break;
         }
         case 4: // Remover um vértice e suas arestas
-            int vertice;
             printf("Digite o numero do vertice para remover: ");
             scanf("%d", &vertice);
             removerVertice(grafos, vertice);
@@ -489,4 +488,6 @@ int main() {
 
     return 0;
 }
+
+
 
