@@ -1,9 +1,9 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\EDJD\\EDA\\EDA_PJ2\\",
+  "WorkspaceRootPath": "C:\\Users\\utilizador\\OneDrive - Instituto Polit\u00E9cnico do C\u00E1vado e do Ave\\01_Disciplinas\\EDA\\VS\\EDA_P2\\EDA_PJ2\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{D2FE4CBC-2180-480C-8517-0BFC2BEC6932}|PROJ_2_EDA.vcxproj|D:\\EDJD\\EDA\\EDA_PJ2\\Source.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{D2FE4CBC-2180-480C-8517-0BFC2BEC6932}|PROJ_2_EDA.vcxproj|C:\\Users\\utilizador\\OneDrive - Instituto Polit\u00E9cnico do C\u00E1vado e do Ave\\01_Disciplinas\\EDA\\VS\\EDA_P2\\EDA_PJ2\\Source.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{D2FE4CBC-2180-480C-8517-0BFC2BEC6932}|PROJ_2_EDA.vcxproj|solutionrelative:Source.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
@@ -24,11 +24,11 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Source.c",
-              "DocumentMoniker": "D:\\EDJD\\EDA\\EDA_PJ2\\Source.c",
+              "DocumentMoniker": "C:\\Users\\utilizador\\OneDrive - Instituto Polit\u00E9cnico do C\u00E1vado e do Ave\\01_Disciplinas\\EDA\\VS\\EDA_P2\\EDA_PJ2\\Source.c",
               "RelativeDocumentMoniker": "Source.c",
-              "ToolTip": "D:\\EDJD\\EDA\\EDA_PJ2\\Source.c",
+              "ToolTip": "C:\\Users\\utilizador\\OneDrive - Instituto Polit\u00E9cnico do C\u00E1vado e do Ave\\01_Disciplinas\\EDA\\VS\\EDA_P2\\EDA_PJ2\\Source.c",
               "RelativeToolTip": "Source.c",
-              "ViewState": "AQIAAOEBAAAAAAAAAAAqwOMBAAA9AAAA",
+              "ViewState": "AQIAAAIDAAAAAAAAAAAIwBQDAAASAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
               "WhenOpened": "2024-04-29T14:13:53.99Z",
               "EditorCaption": ""
